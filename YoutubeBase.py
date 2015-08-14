@@ -1,6 +1,5 @@
 # Made in Python 3.4.3, by /u/MorrisCasper.
 # TODO: Oauth, replying to submission_posted with the Youtube URL. 
-# I don't know anything about the Youtube API and I don't want to scrape youtube.com because I don't want to get banned.
 import requests
 from bs4 import BeautifulSoup
 import time
