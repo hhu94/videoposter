@@ -2,7 +2,7 @@
 # login and refresh the OAuth for your bot/script/app.
 # Created by /u/twistitup
 
-import praw
+import praw, time
 
 # Fill in APP_ID and SECRET first. They can be found on the Reddit app settings.
 USER_AGENT = "Youtube and website poster:0.5 (by /u/MorrisCasper and /u/twistitup)"
@@ -43,6 +43,12 @@ def login():
     r.refresh_access_information(REFRESH_TOKEN)
     return r
 
-# Remember to refresh every 50-55 minutes
-def refreshAccess(r):
-    r.refresh_access_information(REFRESH_TOKEN)
+# Check if 50 minutes have passed since last refresh time.
+# If so, then refreshes the token and updates the last refresh time.
+def checkRefresh(r, last_refresh_time):
+    if last_refresh_time + 3000 < time.time():
+        r.refresh_access_information(REFRESH_TOKEN)
+        print("Refresh time:", time.strftime("%a, %d %b %Y %H:%M:%S",
+                time.localtime()))
+        last_refresh_time = time.time()
+    return last_refresh_time

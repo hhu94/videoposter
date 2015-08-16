@@ -1,6 +1,5 @@
 # Made in Python 3.4.3, by /u/MorrisCasper and /u/twistitup.
-# TODO catch and handle exceptions, refresh OAuth token
-import requests, time, praw, oaux
+import requests, time, praw, oaux, traceback
 from bs4 import BeautifulSoup
 from apiclient.discovery import build
 from difflib import SequenceMatcher
@@ -48,18 +47,33 @@ def postYoutubeComment(title_ws, submission_posted):
 
 if __name__ == "__main__":
     r = oaux.login()
+    last_refresh_time = time.time()
     subreddit = r.get_subreddit(SUBREDDIT)
     latest_link_posted = ""
     while True:
-        link_ws, title_ws = get_latest_video() # Latest link and title from website
-        print("Latest video on website: " + title_ws)
-        if link_ws != latest_link_posted: # If link_ws not already posted
-            latest_link = link_ws
-            print("Posting latest video")
-            submission_posted = subreddit.submit(title_ws, url = link_ws)
-            # submission for testing purposes
-            # r.get_submission(submission_id = '3h5hzr')
-            postYoutubeComment(title_ws, submission_posted)
-        else:
-            print("Not posting because I already posted")
-        time.sleep(SLEEP_TIME)
+        try:
+            last_refresh_time = oaux.checkRefresh(r, last_refresh_time)
+            link_ws, title_ws = get_latest_video() # Latest link and title from website
+            print("Latest video on website: " + title_ws)
+            if link_ws != latest_link_posted: # If link_ws not already posted
+                latest_link = link_ws
+                print("Posting latest video")
+                submission_posted = subreddit.submit(title_ws, url = link_ws)
+                # submission for testing purposes
+                # r.get_submission(submission_id = '3h5hzr')
+                postYoutubeComment(title_ws, submission_posted)
+            else:
+                print("Not posting because I already posted")
+            time.sleep(SLEEP_TIME)
+        except KeyboardInterrupt:
+            print("Shutting down.")
+            break
+        except praw.errors.HTTPException as e:
+            exc = e._raw
+            print("Something bad happened! HTTPError", exc.status_code)
+            if exc.status_code == 503:
+                print("Let's wait til reddit comes back! Sleeping 60 seconds.")
+                time.sleep(60)
+        except Exception as e:
+            print("Something bad happened!", e)
+            traceback.print_exc()
