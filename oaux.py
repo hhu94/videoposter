@@ -47,4 +47,5 @@ def login():
     r.refresh_access_information(config["DEFAULT"]["refreshToken"])
     print("Login time:", time.strftime("%a, %d %b %Y %H:%M:%S",
             time.localtime()))
+    print("Logged in as", r.get_me().name)
     return r
