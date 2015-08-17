@@ -1,6 +1,9 @@
 # Made in Python 3.4.3, by /u/MorrisCasper and /u/twistitup.
+
 import requests, time, praw, oaux, traceback
+# install with "pip install beautifulsoup4"
 from bs4 import BeautifulSoup
+# install with "pip install --upgrade google-api-python-client"
 from apiclient.discovery import build
 from difflib import SequenceMatcher
 
@@ -37,7 +40,8 @@ def postYoutubeComment(title_ws, submission_posted):
         iterationTitle = uploads["items"][i]["snippet"]["title"]
         # Compare how similar the two titles are. If it's almost
         # certain that they are the same video, post the comment
-        if similar(iterationTitle, title_ws) > 0.99:
+        if similar(iterationTitle, title_ws) > 0.95:
+            print("Video title on youtube channel: " + iterationTitle)
             print("Posting youtube url comment")
             videoId = (uploads["items"][i]["snippet"]["resourceId"]["videoId"])
             videoURL = "https://www.youtube.com/watch?v=" + videoId
@@ -72,8 +76,11 @@ if __name__ == "__main__":
             exc = e._raw
             print("Something bad happened! HTTPError", exc.status_code)
             if exc.status_code == 503:
-                print("Let's wait til reddit comes back! Sleeping 60 seconds.")
-                time.sleep(60)
+                print("Let's wait til reddit comes back! Sleeping",
+                    str(SLEEP_TIME), "seconds.")
+                time.sleep(SLEEP_TIME)
         except Exception as e:
             print("Something bad happened!", e)
             traceback.print_exc()
+            print("Waiting", str(SLEEP_TIME), "seconds.")
+            time.sleep(SLEEP_TIME)

@@ -5,7 +5,7 @@
 import praw, time
 
 # Fill in APP_ID and SECRET first. They can be found on the Reddit app settings.
-USER_AGENT = "Youtube and website poster:0.5 (by /u/MorrisCasper and /u/twistitup)"
+USER_AGENT = "Youtube and website poster:1.0 (by /u/MorrisCasper and /u/twistitup)"
 APP_ID = ""
 SECRET = ""
 URI = "https://127.0.0.1:65010/authorize_callback"
@@ -41,6 +41,8 @@ def login():
     r = praw.Reddit(USER_AGENT)
     r.set_oauth_app_info(APP_ID, SECRET, URI)
     r.refresh_access_information(REFRESH_TOKEN)
+    print("Starting time:", time.strftime("%a, %d %b %Y %H:%M:%S",
+            time.localtime()))
     return r
 
 # Check if 50 minutes have passed since last refresh time.
