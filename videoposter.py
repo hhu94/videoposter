@@ -53,10 +53,6 @@ def postYoutubeComment(title_ws, submission_posted, similarity):
                 "Submission and comment posted. Sleeping",
                 SLEEP_TIME, "seconds.")
             return True
-    if similarity == HIGH_SIMILARITY:
-        print(
-            "Submission posted but not comment.",
-            "Could not find appropriate youtube video.")
     return False
 
 if __name__ == "__main__":
@@ -75,7 +71,10 @@ if __name__ == "__main__":
                 # r.get_submission(submission_id = '3h5hzr')
                 if postYoutubeComment(
                         title_ws, submission_posted, HIGH_SIMILARITY) == False:
-                    print("Trying again with a lower similarity ratio.")
+                    print(
+                        "Submission posted but not comment.",
+                        "Could not find appropriate youtube video."
+                        "Trying again with a lower similarity ratio.")
                     if postYoutubeComment(
                             title_ws, submission_posted,
                             LOW_SIMILARITY) == False:
