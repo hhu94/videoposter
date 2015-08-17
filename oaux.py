@@ -1,6 +1,6 @@
 # oaux is an OAuth auxiliary tool for PRAW that helps you setup,
 # login and refresh the OAuth for your bot/script/app.
-# Created by /u/twistitup
+# Made with Python 3.4.0 by /u/twistitup
 
 import praw, time
 
