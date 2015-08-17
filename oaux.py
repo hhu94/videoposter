@@ -2,55 +2,49 @@
 # login and refresh the OAuth for your bot/script/app.
 # Made with Python 3.4.0 by /u/twistitup
 
-import praw, time
+import praw, configparser, time
 
-# Fill in APP_ID and SECRET first. They can be found on the Reddit app settings.
-USER_AGENT = "Youtube and website poster:1.0 (by /u/MorrisCasper and /u/twistitup)"
-APP_ID = ""
-SECRET = ""
-URI = "https://127.0.0.1:65010/authorize_callback"
+# You should have already created a reddit app in your bot's account
+# before using this tool.
+# Fill in appID and secret in oaux.ini manually.
+# These values can be found in your reddit app settings.
 
-SCOPES = (
-    "identity edit flair history modconfig modflair modlog modposts "
-    "modwiki mysubreddits privatemessages read report save submit subscribe "
-    "vote wikiedit wikiread")
-
-# Run firstSetup() from the python console to retrieve a REFRESH_TOKEN.
-REFRESH_TOKEN = ""
-
-# Make sure you're logged into your bot Reddit account on your browser first.
-def firstSetup():
-    r = praw.Reddit(USER_AGENT)
-    r.set_oauth_app_info(APP_ID, SECRET, URI)
-    url = r.get_authorize_url("access_code", SCOPES, True)
+# Run setup() from the python console to retrieve a refreshToken.
+# It will be automatically written into oaux.ini.
+# Make sure you're logged into your bot's reddit account on your browser first.
+def setup():
+    config = configparser.ConfigParser()
+    config.read("oaux.ini")
+    r = praw.Reddit(config["DEFAULT"]["userAgent"])
+    r.set_oauth_app_info(
+        config["DEFAULT"]["appID"], config["DEFAULT"]["secret"],
+        config["DEFAULT"]["URI"])
+    url = r.get_authorize_url("accessCode", config["DEFAULT"]["scopes"], True)
     import webbrowser
     webbrowser.open(url)
-    access_code = input(
-        "Please enter access code obtained from browser url, it is after "
-        "\"code=\": ")
-    access_information = r.get_access_information(access_code)
-    r.set_access_credentials(**access_information)
-    print(access_information)
+    time.sleep(1)
+    accessCode = input(
+        "Please click Allow, then find the access code found in the" +
+        " resulting URL right after \"code=\". Enter the access code here: ")
+    accessInfo = r.get_access_information(accessCode)
+    r.set_access_credentials(**accessInfo)
+    config["DEFAULT"]["refreshToken"] = accessInfo["refresh_token"]
+    with open("oaux.ini", "w") as modifiedConfig:
+        config.write(modifiedConfig)
     print(
-        "Copy the refresh_token above and paste it into the REFRESH_TOKEN "
-        "field in your oaux.py. Then you are good to go!")
-    return r
+        "Your OAuth is all set up and ready to go! Use r = oauth.login()",
+        "in your bot to obtain a PRAW AuthenticatedReddit instance.")
 
 # Use r = oaux.login() in your bot file and you'll be logged in!
+# Returns a PRAW AuthenticatedReddit instance.
 def login():
-    r = praw.Reddit(USER_AGENT)
-    r.set_oauth_app_info(APP_ID, SECRET, URI)
-    r.refresh_access_information(REFRESH_TOKEN)
-    print("Starting time:", time.strftime("%a, %d %b %Y %H:%M:%S",
+    config = configparser.ConfigParser()
+    config.read("oaux.ini")
+    r = praw.Reddit(config["DEFAULT"]["userAgent"])
+    r.set_oauth_app_info(
+        config["DEFAULT"]["appID"], config["DEFAULT"]["secret"],
+        config["DEFAULT"]["URI"])
+    r.refresh_access_information(config["DEFAULT"]["refreshToken"])
+    print("Login time:", time.strftime("%a, %d %b %Y %H:%M:%S",
             time.localtime()))
     return r
-
-# Check if 50 minutes have passed since last refresh time.
-# If so, then refreshes the token and updates the last refresh time.
-def checkRefresh(r, last_refresh_time):
-    if last_refresh_time + 3000 < time.time():
-        r.refresh_access_information(REFRESH_TOKEN)
-        print("Refresh time:", time.strftime("%a, %d %b %Y %H:%M:%S",
-                time.localtime()))
-        last_refresh_time = time.time()
-    return last_refresh_time
