@@ -1,3 +1,8 @@
+# videoposter.py is reddit bot that scrapes a website to find
+# the last video posted on it and creates a reddit submission
+# with a link to the video, then it posts the youtube channel
+# mirror as a comment in the submission.
+
 # Made in Python 3.4.3, by /u/MorrisCasper and /u/twistitup.
 
 import requests, time, praw, oaux, traceback
@@ -17,19 +22,21 @@ LOW_SIMILARITY = 0.95
 
 ### END USER CONFIGURATION ###
 
+# Returns the link and title of the lastest video on the SBFP website.
 def get_latest_video():
     r = requests.get("http://superbestfriendsplay.com/category/videos/", "lxml")
     soup = BeautifulSoup(r.content, "html.parser")
     latest_list_item = soup.find("li", {"class": "archiveitem"})
-
     link = latest_list_item.find("div", {"class": "archivetitle"}).find("a").get("href")
     title = latest_list_item.find("div", {"class": "archivetitle"}).find("a").text
-
     return link, title
 
+# Compares two strings and returns a float from 0.0 to 1.0 depending on
+# the similarity of the strings.
 def similar(a, b):
     return SequenceMatcher(None, a, b).ratio()
 
+# Returns whether or not the youtube video is found and the comment is posted.
 def postYoutubeComment(title_ws, submission_posted, similarity):
     service = build("youtube", "v3", developerKey=YOUTUBE_API_KEY)
     playlistItems = service.playlistItems()
