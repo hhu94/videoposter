@@ -97,13 +97,6 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             print("Shutting down.")
             break
-        except praw.errors.HTTPException as e:
-            exc = e._raw
-            print("Something bad happened! HTTPError", exc.status_code)
-            if exc.status_code == 503:
-                print("Let's wait til reddit comes back! Sleeping",
-                    SLEEP_TIME, "seconds.")
-                time.sleep(SLEEP_TIME)
         except Exception as e:
             print("Something bad happened!", e)
             traceback.print_exc()
