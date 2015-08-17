@@ -73,7 +73,7 @@ if __name__ == "__main__":
                         title_ws, submission_posted, HIGH_SIMILARITY) == False:
                     print(
                         "Submission posted but not comment.",
-                        "Could not find appropriate youtube video."
+                        "Could not find appropriate youtube video.",
                         "Trying again with a lower similarity ratio.")
                     if postYoutubeComment(
                             title_ws, submission_posted,
